@@ -1,0 +1,44 @@
+.banner__box{
+	display: flex;
+	min-height: 365px;
+	justify-content: flex-end;
+	position: relative;
+	background-image: url('../img/brand-photo.png');
+	background-repeat: no-repeat;
+	background-position: calc(-65% + 75px) 0;
+	background-size: auto 100%;
+	&:after{
+		content: '';
+		display: block;
+		padding: 33.5% 0;
+	}
+	@media (max-width: 768px) {
+		align-items: center;
+	}
+	@media (max-width: 600px) {
+		background-image: none;
+		justify-content: center;
+		align-items: center;
+		position: relative;
+	}
+}
+
+.banner__box_mini{
+	min-height: 0;
+	padding: 60px 20px;
+	justify-content: space-between;
+	background-image: none;
+	&:after{
+		display: none;
+	}
+	@media (max-width: 600px) {
+		flex-flow: column;
+		padding: 24px 20px 46px;
+	}
+}
+
+.banner__box_no-breadcrumb{
+	@media (max-width: 600px) {
+		padding-bottom: 24px;
+	}
+}

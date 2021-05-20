@@ -1,0 +1,26 @@
+{
+  "name": "webpack5",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "cd dist && nodemon server/server.js",
+    "startDev": "cd src && nodemon server/server.js",
+    "buildProd": "rm -rf dist && webpack --mode production --config public.config.js",
+    "clean": "rm -rf dist",
+    "buildDevPublic": "webpack --mode development --config public.config.js",
+    "buildDevServer": "webpack --mode development --config server.config.js",
+    "buildServer": "rm -rf dist && webpack --mode development --config server.config.js"
+  },
+  "author": "gry-dmitrij",
+  "license": "ISC",
+  "devDependencies": {
+    "css-loader": "^5.2.4",
+    "file-loader": "^6.2.0",
+    "mini-css-extract-plugin": "^1.6.0",
+    "sass": "^1.32.13",
+    "sass-loader": "^11.1.1",
+    "webpack": "^5.37.1",
+    "webpack-cli": "^4.7.0"
+  }
+}

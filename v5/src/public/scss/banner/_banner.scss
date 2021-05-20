@@ -1,0 +1,15 @@
+.banner{
+	background: #f1e4e6;
+    margin: 0 0 65px 0;
+    @media (max-width: 768px) {
+    	margin-bottom: 20px;
+    }
+}
+.banner_mini{
+	margin-bottom: 0;
+	min-height: 148px;
+	@media (max-width: 600px) {
+		display: flex;
+		align-items: center;
+	}
+}

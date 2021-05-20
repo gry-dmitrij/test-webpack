@@ -1,0 +1,26 @@
+.banner__txt-decoration{
+	padding-left: 16px;
+	border-left: 12px solid #f16d7f;
+	position: absolute;
+	bottom: 50%;
+	box-sizing: border-box;
+	min-width: 403px;
+	width: 40%;
+}
+
+@media (max-width: 768px) {
+	.banner__txt-decoration{
+		width: auto;
+		right: 34px;
+		min-width: 300px;
+		position: relative;
+	}
+}
+
+@media (max-width: 600px) {
+	.banner__txt-decoration{
+		position: relative;
+		right: 0;	
+	}
+	
+}
