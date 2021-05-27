@@ -77,8 +77,13 @@ module.exports = (env, options) => {
                             loader: 'file-loader',
                             options: {
                                 outputPath: (url, resPath, context) => {
-                                    return path.posix.relative(
-                                        context.replace(/\\/g, '/'), resPath.replace(/\\/g, '/'));
+                                    const hash = path.parse(url).name;
+                                    const fileObj = path.parse(path.posix.relative(
+                                        context.replace(/\\/g, '/'), resPath.replace(/\\/g, '/')));
+                                    const name = devMode ?
+                                        `${fileObj.name}.${hash + fileObj.ext}` :
+                                        `${hash + fileObj.ext}`;
+                                    return path.posix.join(fileObj.dir, name);
                                 },
                             }
                         }
@@ -98,6 +103,7 @@ module.exports = (env, options) => {
                                 options: {
                                     attributes: {
                                         list: [
+                                            '...',
                                             {
                                                 // для ручного добавления тэгов link напрямую в html
                                                 // без этого выдает ошибку
