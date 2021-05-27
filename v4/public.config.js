@@ -1,22 +1,41 @@
 const path = require('path');
+const fs = require('fs');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-// const CopyPlugin = require('copy-webpack-plugin');
-// const HtmlPlugin = require('html-webpack-plugin');
+const HtmlPlugin = require('html-webpack-plugin');
+const {CleanWebpackPlugin} = require('clean-webpack-plugin');
+const { VueLoaderPlugin } = require('vue-loader')
+
+const inputDir = 'src/public';      // входная директория
+const outputDir = 'dist/public';    // выходная директория
+
+// генерирует конфигурации для html-webpack-pugin,
+// проходя по всем html файлам в директории
+function generateHTMLPlugins(inject = true) {
+    const templateFiles = fs.readdirSync(path.resolve(__dirname, inputDir));
+    return  templateFiles.filter(item => /\.html/i.test(path.extname(item)))
+        .map(item => {
+            return new HtmlPlugin({
+                template: item,
+                filename: item,
+                inject: inject
+            })
+        })
+}
+
 
 module.exports = (env, options) => {
     const devMode = options.mode === 'development';
     return {
+        context: path.resolve(__dirname, inputDir),
         entry: {
-            // main: ["@babel/polyfill", "./src/public/index.js"]
-            main: ["./src/public/index.js"]
+            main: ['@babel/polyfill', './index.js']
         },
         watch: devMode,
         output:
             {
-                path: path.join(__dirname, 'dist/public'),
-                publicPath: "/",
+                path: path.join(__dirname, outputDir),
+                publicPath: "./",
                 filename: "js/[name].js",
-                // assetModuleFilename: '[name][ext]'
             },
         stats: {
             children: true,
@@ -24,18 +43,28 @@ module.exports = (env, options) => {
                 true
         },
         target: 'web',
-        devtool:
-            "source-map",
+        devtool: devMode ? 'eval' : 'source-map',
         module:
             {
                 rules: [
                     {
-                        test: /\.s[ac]ss$|\.css$/i,
+                        test: /\.m?js$/i,
+                        exclude: /node_models/,
+                        use: {
+                            loader: 'babel-loader',
+                            options: {
+                                presets: ['@babel/preset-env']
+                            }
+                        }
+                    },
+                    {
+                        test: /\.(s[ac]|c)ss$/i,
                         use: [
-                            {
+                            devMode ? 'style-loader' :
+                                {
                                 loader: MiniCssExtractPlugin.loader,
                                 options: {
-                                    publicPath: '../'
+                                    publicPath: '../',
                                 }
                             },
                             'css-loader',
@@ -48,9 +77,8 @@ module.exports = (env, options) => {
                             loader: 'file-loader',
                             options: {
                                 outputPath: (url, resPath, context) => {
-                                    const relPath = path.relative(
-                                        path.join(context, 'src', 'public'), resPath);
-                                    return relPath;
+                                    return path.posix.relative(
+                                        context.replace(/\\/g, '/'), resPath.replace(/\\/g, '/'));
                                 },
                             }
                         }
@@ -62,49 +90,44 @@ module.exports = (env, options) => {
                             name: 'font/[name].[ext]'
                         },
                     },
-                    // {
-                    //     test: /\.html$/i,
-                    //     type: 'asset/resource',
-                    //     generator: {
-                    //         filename: '[name][ext]',
-                    //     }
-                    // },
-                    // {
-                    //     test: /\.html$/i,
-                    //     use: [
-                    //         //'extract-loader',
-                    //         // {
-                    //         //     loader: 'file-loader',
-                    //         //     options: {
-                    //         //         name: '[name].[ext]'
-                    //         //     }
-                    //         // },
-                    //         // 'null-loader',
-                    //         'file-loader',
-                    //         'extract-loader',
-                    //         'ref-loader',
-                    //         'html-loader'
-                    //     ],
-                    // }
+                    {
+                        test: /\.html$/i,
+                        use: [
+                            {
+                                loader: 'html-loader',
+                                options: {
+                                    attributes: {
+                                        list: [
+                                            {
+                                                // для ручного добавления тэгов link напрямую в html
+                                                // без этого выдает ошибку
+                                                // но импортировать нужно при этом отдельно
+                                                tag: 'link',
+                                                attribute: 'href',
+                                                type: 'src',
+                                                filter: (tag, attribute, attributes, resourcePath) => {
+                                                    return tag !== 'link';
+                                                }
+                                            }
+                                        ]
+                                    }
+                                }
+                            },
+                        ],
+                    },
+                    {
+                        test: /\.vue$/,
+                        loader: 'vue-loader'
+                    }
                 ]
             },
         plugins: [
             new MiniCssExtractPlugin({
                 filename: 'css/style.css',
+
             }),
-            // new CopyPlugin({
-            //     patterns: [
-            //         {
-            //             from: "./src/public/css/",
-            //             to: "./css/[name].css"
-            //         },
-            //
-            //     ]
-            // }),
-            // new HtmlPlugin({
-            //     template: 'src/public/',
-            //     filename: '[name].html',
-            // })
-        ]
+            new CleanWebpackPlugin(),
+            new VueLoaderPlugin()
+        ].concat(generateHTMLPlugins())
     }
 }
